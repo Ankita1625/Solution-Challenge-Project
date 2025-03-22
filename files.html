@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Six Buttons</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: #fff;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            text-align: center;
+        }
+
+        .heading {
+            font-size: 2.25rem;
+            font-weight: bold;
+            color: #4f46e5;
+            margin-bottom: 1.5rem;
+        }
+
+        .description {
+            font-size: 1.25rem;
+            color: #6b7280;
+            margin-bottom: 2rem;
+            line-height: 1.75rem;
+        }
+
+        .button-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+            width: 100%;
+        }
+
+        .button {
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+        }
+
+        .button.redirect {
+            background-image: linear-gradient(to right, #8b5cf6, #6366f1);
+        }
+
+        .button.redirect:hover {
+            background-image: linear-gradient(to right, #7c3aed, #4338ca);
+            transform: translateY(-2px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .icon {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        #status {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #15803d; /* Default to online color */
+        }
+
+        #status.offline {
+            color: #b91c1c; /* Red for offline */
+        }
+
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div class="container">
+        <h1 class="heading">Learning Platform</h1>
+        <p class="description">
+            Click the button below to go to various topics.
+        </p>
+        <div class="button-container">
+            <button class="button redirect" onclick="window.location.href='astronomy.html';">
+
+                Astronomy
+            </button>
+            <button class="button redirect" onclick="window.location.href='chemicalreaction.html';">
+
+                Chemical Reaction
+            </button>
+            <button class="button redirect" onclick="window.location.href='environmental_science.html';">
+
+                Environmental Science Quiz
+            </button>
+            <button class="button redirect" onclick="window.location.href='maths_equation.html';">
+
+                Maths Equations
+            </button>
+            <button class="button redirect" onclick="window.location.href='robot_arm.html';">
+
+                Robot Arm Simulation
+            </button>
+            <button class="button redirect" onclick="window.location.href='wave_simulation.html';">
+
+                Wave Simulation
+            </button>
+        </div>
+        <div id="status">Online</div>
+    </div>
+
+    <script>
+        const statusElement = document.getElementById('status');
+
+        function updateStatus() {
+            if (navigator.onLine) {
+                statusElement.textContent = 'Online';
+                statusElement.className = ''; // Remove any classes
+            } else {
+                statusElement.textContent = 'Offline';
+                statusElement.className = 'offline';
+            }
+        }
+
+        updateStatus(); // Initial status on page load
+
+        window.addEventListener('online', updateStatus);
+        window.addEventListener('offline', updateStatus);
+    </script>
+</body>
+</html>
+
+

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exoplanet & Planet Database</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #0b090a; /* Darker, more space-like background */
+            color: #f5f5f5; /* Off-white, slightly warmer text */
+        }
+        .container {
+            max-width: 1000px; /* Slightly wider container */
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .heading {
+            font-size: 2.5rem; /* Larger heading */
+            font-weight: bold;
+            color: #89CFF0; /* Blue heading, like a star */
+            margin-bottom: 2rem;
+            /* text-shadow: 0 0 8px rgba(230, 126, 34, 0.8);  Glow effect */
+        }
+        .search-container {
+            background-color: rgba(255, 255, 255, 0.06); /* Very subtle background */
+            backdrop-filter: blur(12px); /* Slightly stronger blur */
+            border-radius: 0.75rem;
+            box-shadow: 0 6px 10px -2px rgba(0, 0, 0, 0.3), 0 3px 7px -3px rgba(0, 0, 0, 0.2); /* Deeper shadow */
+            padding: 2.5rem; /* Slightly more padding */
+            border: 1px solid rgba(255, 255, 255, 0.08); /* Very faint border */
+            margin-bottom: 2rem;
+        }
+        .input-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ADD8E6; /* Light Blue label, like starlight */
+            margin-bottom: 0.75rem;
+            display: block;
+            text-shadow: 1px 1px 2px rgba(255, 219, 88, 0.5);
+        }
+        .input-field {
+            background-color: rgba(0, 0, 0, 0.3); /* Darker input field */
+            color: #ffffff;
+            border-color: rgba(167, 139, 250, 0.4); /* More vibrant border */
+            padding: 0.8rem;
+            border-radius: 0.375rem;
+            width: 100%;
+            font-size: 1.1rem; /* Slightly larger input text */
+            line-height: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Added transition */
+        }
+        .input-field::placeholder {
+            color: #a0aec0;
+            opacity: 0.7; /* Slightly more opaque placeholder */
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #8b5cf6; /* Focus border color */
+            box-shadow: 0 4px 6px rgba(139, 92, 246, 0.3); /* Focus shadow */
+        }
+        .search-button {
+            background-image: linear-gradient(to right, #4f46e5, #6366f1); /* More intense gradient */
+            color: #ffffff;
+            padding: 0.8rem 2rem; /* Slightly larger button */
+            border-radius: 0.5rem; /* More rounded button */
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 8px -2px rgba(0, 0, 0, 0.2), 0 3px 7px -3px rgba(0, 0, 0, 0.15); /* More pronounced shadow */
+            cursor: pointer;
+            font-size: 1.2rem; /* Larger button text */
+            border: none;
+            margin-top: 1.5rem; /* Increased margin */
+            width: 100%;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 250px; /* Slightly wider button */
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+        }
+        .search-button:hover {
+            background-image: linear-gradient(to right, #4338ca, #4e55d4); /* Slightly shifted gradient on hover */
+            transform: scale(1.06); /* Stronger scale on hover */
+            box-shadow: 0 8px 12px -2px rgba(0, 0, 0, 0.3), 0 4px 8px -4px rgba(0, 0, 0, 0.2); /* Increased shadow on hover */
+        }
+        .search-button:active {
+            transform: scale(1);
+            box-shadow: 0 3px 4px rgba(0, 0, 0, 0.2); /* Smaller shadow on active */
+        }
+
+        #planetInfo {
+            background-color: rgba(255, 255, 255, 0.06); /* Very subtle background */
+            backdrop-filter: blur(12px); /* Slightly stronger blur */
+            border-radius: 0.75rem;
+            box-shadow: 0 6px 10px -2px rgba(0, 0, 0, 0.3), 0 3px 7px -3px rgba(0, 0, 0, 0.2); /* Deeper shadow */
+            padding: 2.5rem; /* Slightly more padding */
+            border-width: 1px;
+            border-color: rgba(255, 255, 255, 0.08); /* Very faint border */
+            margin-top: 2rem; /* Increased margin */
+            color: #ffffff;
+        }
+        #planetInfo h2 {
+            font-size: 2.5rem; /* Larger heading */
+            font-weight: 600;
+            margin-bottom: 2rem; /* Increased margin */
+            text-align: center;
+            background-image: linear-gradient(to right, #f97316, #ef4444); /* Reddish/orange gradient for heading */
+            -webkit-background-clip: text;
+            color: transparent;
+            display: inline-block;
+            text-shadow: 2px 2px 6px rgba(244, 114, 182, 0.7); /* Added text shadow */
+        }
+        #planetInfo p {
+            font-size: 1.1rem; /* Slightly larger text */
+            line-height: 1.8rem; /* Increased line height */
+            margin-bottom: 1rem; /* Increased margin */
+            color: #ffffff;
+        }
+        #planetInfo p strong{
+            color: #ffdb58;
+        }
+
+        #errorAlert {
+            background-color: rgba(248, 113, 113, 0.1);
+            color: #f87171;
+            border-color: rgba(248, 113, 113, 0.3);
+            padding: 1.2rem; /* Slightly increased padding */
+            border-radius: 0.375rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        #errorAlertTitle {
+            font-size: 1.3rem; /* Larger title */
+            font-weight: 600;
+            margin-bottom: 0.5rem; /* Increased margin */
+            display: flex;
+            align-items: center;
+            gap: 0.75rem; /* Increased gap */
+        }
+        #errorMessage {
+            font-size: 1.1rem; /* Slightly larger message */
+            font-weight: 500;
+        }
+        .alert-icon {
+            height: 1.25rem; /* Larger icon */
+            width: 1.25rem;
+            fill: #f87171;
+        }
+        .close-button {
+            position: absolute;
+            top: 0.75rem; /* Adjusted position */
+            right: 0.75rem;
+            color: #f87171;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .close-button:hover {
+            color: #fca5a5;
+            transform: scale(1.1);
+        }
+        .home-button {
+            background-image: linear-gradient(to right, #8b5cf6, #3b82f6);
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 2rem;
+            align-self: center;
+            border: none;
+        }
+        .home-button:hover {
+            background-image: linear-gradient(to right, #7c3aed, #2563eb);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-900">
+    <div class="container">
+        <h1 class="heading">Exoplanet & Planet Database</h1>
+        <div class="search-container">
+            <div id="errorAlert">
+                <div id="errorAlertTitle">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="alert-icon">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM8.982 8.752a.75.75 0 0 1 1.036-.275l.017.024a.75.75 0 0 1-.275 1.036l-.972.972a.75.75 0 0 1-1.037-.275l-.017-.024a.75.75 0 0 1 .275-1.036l.972-.972zM7.75 12a.75.75 0 0 1 1.5 0v.008a.75.75 0 0 1-1.5 0V12z" clip-rule="evenodd" />
+                    </svg>
+                    Error
+                </div>
+                <div id="errorMessage"></div>
+                <button id="closeErrorAlert" class="close-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="height: 1rem; width: 1rem;">
+                        <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22z" />
+                    </svg>
+                </button>
+            </div>
+            <label for="searchQuery" class="input-label">Search for a Planet or Exoplanet:</label>
+            <input type="text" id="searchQuery" placeholder="e.g., Mars, Kepler-186f" class="input-field">
+            <button id="searchButton" class="search-button">Search</button>
+        </div>
+        <div id="planetInfo" style="display: none;">
+            <h2>Planet Details</h2>
+            <p id="planetNameDisplay"><strong>Name:</strong> </p>
+            <p id="planetMassDisplay"><strong>Mass:</strong> </p>
+            <p id="planetRadiusDisplay"><strong>Radius:</strong> </p>
+            <p id="planetTemperatureDisplay"><strong>Temperature:</strong> </p>
+            <p id="planetAtmosphereDisplay"><strong>Atmosphere:</strong> </p>
+            <p id="planetSurfaceDisplay"><strong>Surface:</strong> </p>
+            <p id="planetMineralsDisplay"><strong>Minerals:</strong> </p>
+            <p id="planetMetalsDisplay"><strong>Metals:</strong> </p>
+            <p id="planetDistanceDisplay"><strong>Distance from Star:</strong> </p>
+            <p id="planetStarTypeDisplay"><strong>Star Type:</strong> </p>
+            <p id="planetHabitableDisplay"><strong>Habitable:</strong> </p>
+            <p id="planetYearLengthDisplay"><strong>Year Length:</strong> </p>
+             <p id="planetMoonsDisplay"><strong>Moons:</strong> </p>
+        </div>
+    </div>
+    <button class="home-button" onclick="window.location.href='files.html'">Go to Home Page</button>
+    <script>
+        const searchInput = document.getElementById('searchQuery');
+        const searchButton = document.getElementById('searchButton');
+        const errorAlert = document.getElementById('errorAlert');
+        const errorMessage = document.getElementById('errorMessage');
+        const closeErrorAlert = document.getElementById('closeErrorAlert');
+        const planetInfoDiv = document.getElementById('planetInfo');
+
+        //Planet Info Display
+        const planetNameDisplay = document.getElementById('planetNameDisplay');
+        const planetMassDisplay = document.getElementById('planetMassDisplay');
+        const planetRadiusDisplay = document.getElementById('planetRadiusDisplay');
+        const planetTemperatureDisplay = document.getElementById('planetTemperatureDisplay');
+        const planetAtmosphereDisplay = document.getElementById('planetAtmosphereDisplay');
+        const planetSurfaceDisplay = document.getElementById('planetSurfaceDisplay');
+        const planetMineralsDisplay = document.getElementById('planetMineralsDisplay');
+        const planetMetalsDisplay = document.getElementById('planetMetalsDisplay');
+        const planetDistanceDisplay = document.getElementById('planetDistanceDisplay');
+        const planetStarTypeDisplay = document.getElementById('planetStarTypeDisplay');
+        const planetHabitableDisplay = document.getElementById('planetHabitableDisplay');
+        const planetYearLengthDisplay = document.getElementById('planetYearLengthDisplay');
+        const planetMoonsDisplay = document.getElementById('planetMoonsDisplay');
+
+        function setError(message) {
+            errorMessage.textContent = message;
+            errorAlert.style.display = 'block';
+            planetInfoDiv.style.display = 'none';
+        }
+
+        closeErrorAlert.addEventListener('click', () => {
+            errorAlert.style.display = 'none';
+            errorMessage.textContent = '';
+        });
+
+        searchButton.addEventListener('click', () => {
+            const query = searchInput.value.trim().toLowerCase();
+            if (!query) {
+                setError("Please enter a planet or exoplanet name to search.");
+                return;
+            }
+            const planetData = getPlanetData(query);
+            if (!planetData) {
+                setError(`Planet or exoplanet "${query}" not found in our database.`);
+                return;
+            }
+            displayPlanetInfo(planetData);
+        });
+
+        function displayPlanetInfo(data) {
+            planetNameDisplay.textContent = `Name: ${data.name}`;
+            planetMassDisplay.textContent = `Mass: ${data.mass}`;
+            planetRadiusDisplay.textContent = `Radius: ${data.radius}`;
+            planetTemperatureDisplay.textContent = `Temperature: ${data.temperature}`;
+            planetAtmosphereDisplay.textContent = `Atmosphere: ${data.atmosphere}`;
+            planetSurfaceDisplay.textContent = `Surface: ${data.surface}`;
+            planetMineralsDisplay.textContent = `Minerals: ${data.minerals}`;
+            planetMetalsDisplay.textContent = `Metals: ${data.metals}`;
+            planetDistanceDisplay.textContent = `Distance from Star: ${data.distanceFromStar}`;
+            planetStarTypeDisplay.textContent = `Star Type: ${data.starType}`;
+            planetHabitableDisplay.textContent = `Habitable: ${data.habitable}`;
+            planetYearLengthDisplay.textContent = `Year Length: ${data.yearLength}`;
+            planetMoonsDisplay.textContent = `Moons: ${data.moons}`;
+            planetInfoDiv.style.display = 'block';
+            errorAlert.style.display = 'none';
+        }
+
+        function getPlanetData(query) {
+            // Expanded and corrected data, incorporating user feedback and fixing errors.
+            const planets = {
+                'mercury': {
+                    name: 'Mercury',
+                    mass: '3.30 x 10^23 kg',
+                    radius: '2,439.7 km',
+                    temperature: '100 to 700 K (-173 to 427 °C)',
+                    atmosphere: 'Extremely thin, virtually a vacuum (exosphere)',
+                    surface: 'Rocky, heavily cratered',
+                    minerals: 'Silicates, Iron',
+                    metals: 'Iron (core)',
+                    distanceFromStar: '0.39 AU',
+                    starType: 'G-type main-sequence star (Sol)',
+                    habitable: 'No',
+                    yearLength: '88 Earth days',
+                    moons: 'None',
+                },
+                'venus': {
+                    name: 'Venus',
+                    mass: '4.87 x 10^24 kg',
+                    radius: '6,051.8 km',
+                    temperature: '737 K (464 °C)',
+                    atmosphere: 'Dense, CO2, clouds of sulfuric acid',
+                    surface: 'Volcanic, rocky plains',
+                    minerals: 'Silicates, Oxides',
+                    metals: 'Iron, Nickel (core)',
+                    distanceFromStar: '0.72 AU',
+                    starType: 'G-type main-sequence star (Sol)',
+                    habitable: 'No',
+                    yearLength: '225 Earth days',
+                    moons: 'None',
+                },
+                'earth': {
+                    name: 'Earth',
+                    mass: '5.97 x 10^24 kg',
+                    radius: '6,371 km',
+                    temperature: '288 K (15 °C)',
+                    atmosphere: 'N2, O2, Ar, H2O',
+                    surface: 'Continents, oceans, diverse ecosystems',
+                    minerals: 'Silicates, Carbonates, Oxides',
+                    metals: 'Iron, Nickel (core), Aluminum, etc.',
+                    distanceFromStar: '1.00 AU',
+                    starType: 'G-type main-sequence star (Sol)',
+                    habitable: 'Yes',
+                    yearLength: '365.25 days',
+                    moons: '1 (Moon)',
+                },
+                'mars': {
+                    name: 'Mars',
+                    mass: '6.42 x 10^23 kg',
+                    radius: '3,389.5 km',
+                    temperature: '150 to 310 K (-123 to 37 °C)',
+                    atmosphere: 'Thin, CO2, N2, Ar',
+                    surface: 'Rocky, canyons, volcanoes, polar ice caps',
+                    minerals: 'Silicates, Iron oxides',
+                    metals: 'Iron (core), Aluminum, etc.',
+                    distanceFromStar: '1.52 AU',
+                    starType: 'G-type main-sequence star (Sol)',
+                    habitable: 'Potentially habitable in the past',
+                    yearLength: '687 Earth days',
+                    moons: '2 (Phobos, Deimos)',
+                },
+                'jupiter': {
+                    name: 'Jupiter',
+                    mass: '1.90 x 10^27 kg',
+                    radius: '69,911 km',
+                    temperature: '110 K (-163 °C)',
+                    atmosphere: 'H2, He',
+                    surface: 'Gas giant, no solid surface',
+                    minerals: 'Unknown (likely deep within)',
+                    metals: 'Possibly metallic hydrogen in core',
+                    distanceFromStar: '5.20 AU',
+                    starType: 'G-type main-sequence star (Sol)',
+                    habitable: 'No',
+                    yearLength: '4,333 Earth days (11.86 years)',
+                    moons: '79 (Io, Europa, Ganymede, Callisto, etc.)',
+                },
+                'saturn': {
+                    name: 'Saturn',
+                    mass: '5.68 x 10^26 kg',
+                    radius: '58,232 km',
+                    temperature: '84 K (-189 °C)',
+                    atmosphere: 'H2, He',
+                    surface: 'Gas giant, no solid surface',
+                    minerals: 'Unknown (likely deep within)',
+                    metals: 'Possibly metallic hydrogen in core',
+                    distanceFromStar: '9.58 AU',
+                    starType: 'G-type main-sequence star (Sol)',
+                    habitable: 'No',
+                    yearLength: '10,759 Earth days (29.45 years)',
+                    moons: '82 (Titan, Rhea, Dione, etc.)',
+                },
+                'uranus': {
+                    name: 'Uranus',
+                    mass: '8.68 x 10^25 kg',
+                    radius: '25,362 km',
+                    temperature: '76 K (-197 °C)',
+                    atmosphere: 'H2, He, CH4',
+                    surface: 'Ice giant, no solid surface',
+                    minerals: 'Unknown (likely deep within)',
+                    metals: 'Unknown',
+                    distanceFromStar: '19.22 AU',
+                    starType: 'G-type main-sequence star (Sol)',
+                    habitable: 'No',
+                    yearLength: '30,687 Earth days (84 years)',
+                    moons: '27 (Titania, Oberon, Umbriel, etc.)',
+                },
+                'neptune': {
+                    name: 'Neptune',
+                    mass: '1.02 x 10^26 kg',
+                    radius: '24,622 km',
+                    temperature: '72 K (-201 °C)',
+                    atmosphere: 'H2, He, CH4',
+                    surface: 'Ice giant, no solid surface',
+                    minerals: 'Unknown (likely deep within)',
+                    metals: 'Unknown',
+                    distanceFromStar: '30.05 AU',
+                    starType: 'G-type main-sequence star (Sol)',
+                    habitable: 'No',
+                    yearLength: '60,190 Earth days (164.79 years)',
+                    moons: '14 (Triton, Proteus, Nereid, etc.)',
+                },
+                'pluto': {
+                    name: 'Pluto',
+                    mass: '1.30 x 10^22 kg',
+                    radius: '1,188.3 km',
+                    temperature: '44 K (-229 °C)',
+                    atmosphere: 'Thin, N2, CH4, CO',
+                    surface: 'Rocky, icy',
+                    minerals: 'Ice, rock',
+                    metals: 'Unknown',
+                    distanceFromStar: '39.48 AU',
+                    starType: 'G-type main-sequence star (Sol)',
+                    habitable: 'No',
+                    yearLength: '90,560 Earth days (248 years)',
+                    moons: '5 (Charon, Nix, Hydra, etc.)',
+                },
+                'kepler-186f': {
+                    name: 'Kepler-186f',
+                    mass: 'Unknown',
+                    radius: '1.11 Earth radii',
+                    temperature: '213 K (-60 °C) (estimated)',
+                    atmosphere: 'Unknown, likely thin',
+                    surface: 'Rocky, potentially habitable',
+                    minerals: 'Likely silicates and iron',
+                    metals: 'Likely iron core',
+                    distanceFromStar: '0.31 AU',
+                    starType: 'M-type (red dwarf)',
+                    habitable: 'Potentially habitable',
+                    yearLength: '130 Earth days',
+                    moons: 'Unknown',
+                },
+                'proxima centauri b': {
+                    name: 'Proxima Centauri b',
+                    mass: '1.3 Earth masses (estimated)',
+                    radius: '1.3 Earth radii (estimated)',
+                    temperature: '234 K (-39 °C) (estimated)',
+                    atmosphere: 'Unknown, possibly tidally locked',
+                    surface: 'Rocky, potentially habitable',
+                    minerals: 'Likely silicates and iron',
+                    metals: 'Likely iron core',
+                    distanceFromStar: '0.05 AU',
+                    starType: 'M-type (red dwarf)',
+habitable: 'Potentially habitable, but harsh conditions',
+                    yearLength: '11.2 Earth days',
+                    moons: 'Unknown',
+                },
+                'trappist-1e': {
+                    name: 'TRAPPIST-1e',
+                    mass: '0.62 Earth masses',
+                    radius: '0.92 Earth radii',
+                    temperature: '251 K (-22 °C) (estimated)',
+                    atmosphere: 'Likely thin, unknown composition',
+                    surface: 'Rocky, potentially habitable',
+                     minerals: 'Likely silicates and iron',
+                    metals: 'Likely iron core',
+                    distanceFromStar: '0.029 AU',
+                    starType: 'M-type (red dwarf)',
+                    habitable: 'Potentially habitable',
+                    yearLength: '6.1 Earth days',
+                    moons: 'Unknown',
+                },
+                '51 pegasi b':{
+                    name: '51 Pegasi b',
+                    mass: '0.47 Jupiter masses',
+                    radius: '1.9 Jupiter radii',
+                    temperature: '~1200 K',
+                    atmosphere: 'Hot, H2, He',
+                    surface: 'No solid surface (Hot Jupiter)',
+                    minerals: 'Unknown',
+                    metals: 'Unknown',
+                    distanceFromStar: '0.05 AU',
+                    starType: 'G-type main sequence',
+                    habitable: 'No',
+                    yearLength: '4.2 Earth days',
+                    moons: 'None',
+                },
+                 'kepler-452b': {
+                    name: 'Kepler-452b',
+                    mass: '5 Earth masses (estimated)',
+                    radius: '1.6 Earth radii',
+                    temperature: '265 K (−8 °C) (estimated)',
+                    atmosphere: 'Likely thicker than Earths, unknown composition',
+                    surface: 'Rocky, potentially super-Earth',
+                    minerals: 'Likely silicates and iron',
+                    metals: 'Likely iron core',
+                    distanceFromStar: '1.05 AU',
+                    starType: 'G-type main sequence',
+                    habitable: 'Potentially habitable',
+                    yearLength: '385 Earth days',
+                    moons: 'Unknown',
+                },
+            };
+            return planets[query] || null;
+        }
+    </script>
+</body>
+</html>

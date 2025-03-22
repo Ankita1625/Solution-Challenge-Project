@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemical Reaction Predictor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e0f7fa; /* Light cyan background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            max-width: 4xl;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        .heading {
+            font-size: 2.25rem;
+            font-weight: bold;
+            text-align: center;
+            color: #0d47a1; /* Dark blue */
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+        .input-area {
+            background-color: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 4rem;
+            border-width: 1px;
+            border-color: rgba(255, 255, 255, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        .input-label {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1a237e; /* Very dark blue */
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .text-area {
+            background-color: #e0f7fa; /* light yellow */
+            color: #1a237e;  /* dark blue text */
+            border-color: rgba(0, 102, 153, 0.3); /* Lighter blue border */
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            width: 100%;
+            min-height: 10rem;
+            resize: vertical;
+            font-family: inherit;
+            font-size: 1rem;
+            line-height: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .text-area::placeholder {
+            color: #90a4ae; /* light blue-gray placeholder */
+        }
+        .button-container {
+            margin-top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+        .submit-button {
+            background-image: linear-gradient(to right, #1e88e5, #0077c2); /* shades of blue */
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .submit-button:hover {
+            background-image: linear-gradient(to right, #1565c0, #004d99);
+            transform: scale(1.05);
+        }
+        .submit-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .clear-button {
+            color: #42a5f5; /* light blue */
+            border-color: rgba(66, 165, 245, 0.3);
+        }
+        .clear-button:hover {
+            color: #1e88e5; /* medium blue */
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .alert {
+            background-color: #b3cee5; /* very light cyan */
+            color: #01579b; /* very dark blue */
+            border-color: rgba(0, 102, 170, 0.3);
+            padding: 1rem;
+            border-radius: 0.375rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        .alert-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .alert-description {
+            font-size: 1rem;
+        }
+        .alert-icon {
+            height: 1rem;
+            width: 1rem;
+        }
+        .close-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            color: #01579b;
+            cursor: pointer;
+        }
+        .close-button:hover {
+            color: #00869e;
+        }
+        .info-area {
+            background-color: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 4rem;
+            border-width: 1px;
+            border-color: rgba(255, 255, 255, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        .info-label {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1a237e;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .output-area {
+            background-color: #e0f7fa; /* light cyan */
+            color: #008080;
+            border-color: rgba(0, 128, 128, 0.3);
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            width: 100%;
+            min-height: 12.5rem;
+            resize: none;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 1rem;
+            line-height: 1.5rem;
+        }
+        .loader {
+            height: 1rem;
+            width: 1rem;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .home-button {
+            background-image: linear-gradient(to right, #1e88e5, #0077c2);
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 2rem;
+            align-self: center;
+            border: none;
+        }
+        .home-button:hover {
+            background-image: linear-gradient(to right, #1565c0, #004d99);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-cyan-100 to-blue-100 p-4 md:p-8 min-h-screen">
+    <div class="container">
+        <h1 class="heading">Chemical Reaction Predictor</h1>
+
+        <div class="input-area">
+            <h2 class="input-label">
+                <i class="fas fa-flask"></i>
+                Enter Reactants
+            </h2>
+            <textarea
+                id="reactantsInput"
+                class="text-area"
+                placeholder="Enter reactants separated by commas (e.g., NaOH, HCl or Sodium Hydroxide, Hydrochloric Acid)"
+            ></textarea>
+            <div class="button-container">
+                <button id="predictButton" class="submit-button">
+                    <i class="fas fa-spinner mr-2 d-none"></i>
+                    Predict Reaction
+                </button>
+                <button id="clearButton" class="clear-button btn btn-outline-secondary">
+                    Clear
+                </button>
+            </div>
+        </div>
+
+        <div id="errorAlert" class="alert d-none">
+            <div class="alert-title">
+                </div>
+            <div id="errorMessage" class="alert-description"></div>
+            <button id="closeErrorAlert" class="close-button">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="info-area d-none" id="reactionInfo">
+            <h2 class="info-label">
+                <i class="fas fa-info-circle"></i>
+                Reaction Information
+            </h2>
+            <textarea id="reactionOutput" class="output-area" readonly></textarea>
+        </div>
+    </div>
+    <button class="home-button" onclick="window.location.href='files.html'">Go to Home Page</button>
+    <script>
+        const reactantsInput = document.getElementById('reactantsInput');
+        const predictButton = document.getElementById('predictButton');
+        const clearButton = document.getElementById('clearButton');
+        const errorAlert = document.getElementById('errorAlert');
+        const errorMessage = document.getElementById('errorMessage');
+        const closeErrorAlert = document.getElementById('closeErrorAlert');
+        const reactionInfo = document.getElementById('reactionInfo');
+        const reactionOutput = document.getElementById('reactionOutput');
+        const loaderIcon = document.querySelector('.fa-spinner');
+
+        // Mock data (replace with actual database or API calls)
+        const mockChemicalData = {
+            'NaOH': { name: 'Sodium Hydroxide', formula: 'NaOH', type: 'base', harmful: true },
+            'HCl': { name: 'Hydrochloric Acid', formula: 'HCl', type: 'acid', harmful: true },
+            'NaCl': { name: 'Sodium Chloride', formula: 'NaCl', type: 'salt', harmful: false },
+            'H2O': { name: 'Water', formula: 'H2O', type: 'solvent', harmful: false },
+            'C6H12O6': { name: 'Glucose', formula: 'C6H12O6', type: 'organic', harmful: false },
+            'O2': { name: 'Oxygen', formula: 'O2', type: 'gas', harmful: false },
+            'CO2': { name: 'Carbon Dioxide', formula: 'CO2', type: 'gas', harmful: true },
+            'H2SO4': { name: 'Sulfuric Acid', formula: 'H2SO4', type: 'acid', harmful: true },
+            'Cu': { name: 'Copper', formula: 'Cu', type: 'metal', harmful: false },
+            'CuSO4': { name: 'Copper Sulfate', formula: 'CuSO4', type: 'salt', harmful: true },
+            'Zn': { name: 'Zinc', formula: 'Zn', type: 'metal', harmful: false },
+            'ZnSO4': { name: 'Zinc Sulfate', formula: 'ZnSO4', type: 'salt', harmful: true },
+            'NH3': { name: 'Ammonia', formula: 'NH3', type: 'base', harmful: true },
+            'N2': { name: 'Nitrogen', formula: 'N2', type: 'gas', harmful: false },
+            'H2': { name: 'Hydrogen', formula: 'H2', type: 'gas', harmful: false },
+            'CH4': { name: 'Methane', formula: 'CH4', type: 'organic', harmful: true },
+            'CaO': { name: 'Calcium Oxide', formula: 'CaO', type: 'base', harmful: true },
+            'Ca(OH)2': { name: 'Calcium Hydroxide', formula: 'Ca(OH)2', type: 'base', harmful: true },
+            'CaCO3': { name: 'Calcium Carbonate', formula: 'CaCO3', type: 'salt', harmful: false },
+            'HClO': { name: 'Hypochlorous Acid', formula: 'HClO', type: 'acid', harmful: true },
+            'Cl2': { name: 'Chlorine', formula: 'Cl2', type: 'gas', harmful: true },
+            'NH4Cl': { name: 'Ammonium Chloride', formula: 'NH4Cl', type: 'salt', harmful: false },
+            'Ag': { name: 'Silver', formula: 'Ag', type: 'metal', harmful: false },
+            'Au': { name: 'Gold', formula: 'Au', type: 'metal', harmful: false },
+            'HNO3': { name: 'Nitric Acid', formula: 'HNO3', type: 'acid', harmful: true },
+            'KOH': { name: 'Potassium Hydroxide', formula: 'KOH', type: 'base', harmful: true },
+            'H2S': { name: 'Hydrogen Sulfide', formula: 'H2S', type: 'gas', harmful: true },
+            'AuCl3': { name: 'Gold(III) Chloride', formula: 'AuCl3', type: 'salt', harmful: true },
+        };
+
+        const mockReactions = [
+            {
+                reactants: ['NaOH', 'HCl'],
+                products: ['NaCl', 'H2O'],
+                type: 'Acid-Base Neutralization',
+                process: 'Mixing',
+                equation: 'NaOH + HCl -> NaCl + H2O',
+            },
+            {
+                reactants: ['C6H12O6', 'O2'],
+                products: ['CO2', 'H2O'],
+                type: 'Combustion',
+                process: 'Burning',
+                equation: 'C6H12O6 + 6O2 -> 6CO2 + 6H2O',
+            },
+            {
+                reactants: ['Cu', 'H2SO4'],
+                products: ['CuSO4', 'H2O', 'SO2'],
+                type: 'Single Displacement',
+                process: 'Heating',
+                equation: 'Cu + 2H2SO4 -> CuSO4 + 2H2O + SO2',
+            },
+            {
+                reactants: ['Zn', 'CuSO4'],
+                products: ['ZnSO4', 'Cu'],
+                type: 'Single Displacement',
+                process: 'Mixing',
+                equation: 'Zn + CuSO4 -> ZnSO4 + Cu',
+            },
+            {
+                reactants: ['N2', 'H2'],
+                products: ['NH3'],
+                type: 'Synthesis',
+                process: 'Haber-Bosch',
+                equation: 'N2 + 3H2 -> 2NH3',
+            },
+            {
+                reactants: ['CH4', 'O2'],
+                products: ['CO2', 'H2O'],
+                type: 'Combustion',
+                process: 'Burning',
+                equation: 'CH4 + 2O2 -> CO2 + 2H2O',
+            },
+            {
+                reactants: ['CaO', 'H2O'],
+                products: ['Ca(OH)2'],
+                type: 'Synthesis',
+                process: 'Mixing',
+                equation: 'CaO + H2O -> Ca(OH)2',
+            },
+             {
+                reactants: ['CaCO3', 'HCl'],
+                products: ['CaCl2', 'H2O', 'CO2'],
+                type: 'Acid-Base',
+                process: 'Mixing',
+                equation: 'CaCO3 + 2HCl -> CaCl2 + H2O + CO2',
+            },
+            {
+                reactants: ['Cl2', 'H2O'],
+                products: ['HCl', 'HClO'],
+                type: 'Disproportionation',
+                process: 'Mixing',
+                equation: 'Cl2 + H2O -> HCl + HClO',
+            },
+            {
+                reactants: ['Ag', 'HNO3'],
+                products: ['AgNO3', 'NO2', 'H2O'],
+                type: 'Single Displacement',
+                process: 'Dissolving',
+                equation: 'Ag + 2HNO3 -> AgNO3 + NO2 + H2O',
+            },
+             {
+                reactants: ["Au", "HCl", "HNO3"],
+                products: ["AuCl3", "NO2", "H2O"],
+                type: "Redox",
+                process: "Dissolving",
+                equation: "Au + HCl + 3HNO3 -> AuCl3 + 3NO2 + 3H2O"
+            },
+            {
+                reactants: ['HCl', 'KOH'],
+                products: ['KCl', 'H2O'],
+                type: 'Acid-Base Neutralization',
+                process: 'Mixing',
+                equation: 'HCl + KOH -> KCl + H2O',
+            },
+             {
+                reactants: ['Ag', 'H2S'],
+                products: ['Ag2S', 'H2'],
+                type: 'Single Displacement',
+                process: 'Reaction',
+                equation: '2Ag + H2S -> Ag2S + H2',
+            },
+            {
+                reactants: ['Au', 'Cl2'],
+                products: ['AuCl3'],
+                type: 'Synthesis',
+                process: 'Reaction',
+                equation: '2Au + 3Cl2 -> 2AuCl3',
+            },
+        ];
+
+        function getChemicalInfo(chemicalFormula) {
+            return mockChemicalData[chemicalFormula] || {
+                name: chemicalFormula,
+                formula: chemicalFormula,
+                type: 'unknown',
+                harmful: true,
+            };
+        }
+
+        function balanceEquation(equation) {
+            return equation; // Simplified for the demo.
+        }
+
+        function processReaction() {
+            if (!reactantsInput.value.trim()) {
+                setError('Please enter reactants.');
+                return;
+            }
+
+            setLoading(true);
+            setError('');
+            reactionOutput.value = '';
+            reactionInfo.classList.add('d-none');
+
+
+            try {
+                const reactantNames = reactantsInput.value.split(',').map(r => r.trim());
+                const reactantFormulas = reactantNames.map(name => {
+                    const formula = mockChemicalData[name]?.formula || name;
+                    return formula;
+                });
+
+                const matchingReactions = mockReactions.filter(reaction => {
+                    return reactantFormulas.every(reactant => reaction.reactants.includes(reactant));
+                });
+
+                let output = '';
+                if (matchingReactions.length === 0) {
+                    output = 'No matching reaction found for the given reactants.\n\n';
+                    output += 'Based on the reactants provided, here are some potential reactions:\n';
+
+                    const suggestedReactions = [];
+                     const unknownReactants = reactantFormulas.filter(formula => !mockChemicalData[formula]);
+
+                    // 1. Find reactions for each known reactant individually
+                    reactantFormulas.forEach(reactantFormula => {
+                        if (mockChemicalData[reactantFormula]) {
+                            const reactions = mockReactions.filter(reaction =>
+                                reaction.reactants.includes(reactantFormula)
+                            );
+                            suggestedReactions.push(...reactions);
+                        }
+                    });
+
+                    // 2. Handle Unknown Reactants
+                    if (unknownReactants.length > 0) {
+                        unknownReactants.forEach(unknownReactant => {
+                            if (unknownReactant === 'Ag') {
+                                suggestedReactions.push(...mockReactions.filter(r => r.reactants.includes('Ag') && r.reactants.includes('H2S')));
+                            }
+                            if (unknownReactant === 'Au') {
+                                suggestedReactions.push(...mockReactions.filter(r => r.reactants.includes('Au') && r.reactants.includes('Cl2')));
+                            }
+                        });
+                    }
+                    // Remove duplicate reactions
+                    const uniqueReactions = [...new Set(suggestedReactions)];
+
+                    if (uniqueReactions.length > 0) {
+                        uniqueReactions.forEach((reaction, index) => {
+                            const balancedEquation = balanceEquation(reaction.equation);
+                            output += `  Potential Reaction ${index + 1}:\n`;
+                            output += `    Equation: ${balancedEquation}\n`;
+                            output += `    Type: ${reaction.type}\n`;
+                            output += `    Process: ${reaction.process}\n`;
+                            output += '    Products:\n';
+
+                            const productFormulas = reaction.products;
+                             const uniqueProducts = [...new Set(productFormulas)];
+                            uniqueProducts.forEach(productFormula => {
+                                const productInfo = getChemicalInfo(productFormula);
+                                output += `      - ${productInfo.name} (${productInfo.formula}), Harmful: ${productInfo.harmful ? 'Yes' : 'No'}\n`;
+                            });
+
+                            const reactantsSet = new Set(reactantFormulas);
+                            const productsSet = new Set(productFormulas);
+                            const difference = [...reactantsSet].filter(x => ![...productsSet].includes(x));
+                            const differenceNames = difference.map(formula => {
+                                const chem = getChemicalInfo(formula);
+                                return `${chem.name} (${chem.formula})`;
+                            });
+
+                            output += `    Reactants - Products: ${differenceNames.length > 0 ? differenceNames.join(', ') : 'None'}\n\n`;
+                        });
+                    } else {
+                        output = "    No related reactions found in our database.\n";
+                        setError(output);
+                    }
+                    if (!error) {
+                        reactionOutput.value = output;
+                        reactionInfo.classList.remove('d-none');
+                    }
+                    setLoading(false);
+
+                } else {
+                    matchingReactions.forEach((reaction, index) => {
+                        const balancedEquation = balanceEquation(reaction.equation);
+                        output += `Reaction ${index + 1}:\n`;
+                        output += `  Equation: ${balancedEquation}\n`;
+                        output += `  Type: ${reaction.type}\n`;
+                        output += `  Process: ${reaction.process}\n`;
+                        output += '  Products:\n';
+
+                        const productFormulas = reaction.products;
+                        const uniqueProducts = [...new Set(productFormulas)];
+
+                        uniqueProducts.forEach(productFormula => {
+                            const productInfo = getChemicalInfo(productFormula);
+                            output += `    - ${productInfo.name} (${productInfo.formula}), Harmful: ${productInfo.harmful ? 'Yes' : 'No'}\n`;
+                        });
+                        const reactantsSet = new Set(reactantFormulas);
+                        const productsSet = new Set(productFormulas);
+                        const difference = [...reactantsSet].filter(x => ![...productsSet].includes(x));
+
+                        const differenceNames = difference.map(formula => {
+                            const chem = getChemicalInfo(formula);
+                            return `${chem.name} (${chem.formula})`;
+                        });
+                        output += `  Reactants - Products: ${differenceNames.length > 0 ? differenceNames.join(', ') : 'None'}\n\n`;
+                    });
+                    reactionOutput.value = output;
+                    reactionInfo.classList.remove('d-none');
+                    setLoading(false);}
+
+            } catch (err) {
+                setError(`An unexpected error occurred: give proper reactants`);
+                setReactionOutput('');
+            }finally {
+                setLoading(false);
+            }
+        }
+
+        function clearInput() {
+            reactantsInput.value = '';
+            reactionOutput.value = '';
+            setError('');
+            reactionInfo.classList.add('d-none');
+        }
+
+        function setError(message) {
+            if (message) {
+                errorAlert.classList.remove('d-none');
+                errorMessage.textContent = message;
+            } else {
+                errorAlert.classList.add('d-none');
+                errorMessage.textContent = '';
+            }
+        }
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                loaderIcon.classList.remove('d-none');
+                predictButton.disabled = true;
+            } else {
+                loaderIcon.classList.add('d-none');
+                predictButton.disabled = false;
+            }
+        }
+
+        closeErrorAlert.addEventListener('click', () => {
+            setError('');
+        });
+
+        clearButton.addEventListener('click', clearInput);
+        predictButton.addEventListener('click', processReaction);
+    </script>
+</body>
+</html>

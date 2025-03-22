@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Arm Simulation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1e293b;
+            color: #f8fafc;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1.25rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .heading {
+            font-size: 2.25rem;
+            font-weight: bold;
+            color: #a855f7;
+            margin-bottom: 2rem;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        #robotCanvas {
+            background-color: #2d3748;
+            border-radius: 0.75rem;
+            box-shadow: 0 6px 12px -3px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            height: auto;
+            max-height: 400px;
+            aspect-ratio: 8 / 6;
+        }
+
+        .controls {
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .control-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.75rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .input-range {
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 0.75rem;
+            height: 0.6rem;
+            outline: none;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .input-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 2rem;
+            width: 2rem;
+            background: #a855f7;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 3px 6px -1px rgba(0, 0, 0, 0.15), 0 1px 3px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .input-range::-moz-range-thumb {
+            height: 2rem;
+            width: 2rem;
+            background: #a855f7;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 3px 6px -1px rgba(0, 0, 0, 0.15), 0 1px 3px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .input-range::-webkit-slider-thumb:hover,
+        .input-range::-moz-range-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .input-range:focus {
+            box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.5);
+        }
+
+        .button {
+            padding: 0.8rem 1.8rem;
+            border-radius: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 10px -2px rgba(0, 0, 0, 0.2);
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .button.start {
+            background-image: linear-gradient(to right, #6ee7b7, #10b981);
+        }
+
+        .button.start:hover {
+            background-image: linear-gradient(to right, #14b8a6, #047857);
+            transform: scale(1.05);
+        }
+
+        .button.reset {
+            background-image: linear-gradient(to right, #fcd34d, #f59e0b);
+        }
+
+        .button.reset:hover {
+            background-image: linear-gradient(to right, #eab308, #d97706);
+            transform: scale(1.05);
+        }
+
+        #abc {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 1.1rem;
+            box-shadow: 0 6px 12px -3px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            .heading {
+                font-size: 2rem;
+            }
+
+            .controls {
+                gap: 1.5rem;
+            }
+
+            .control-group {
+                gap: 0.75rem;
+            }
+
+            .button {
+                font-size: 1rem;
+                padding: 0.75rem 1.5rem;
+            }
+
+            #robotCanvas {
+                max-height: 300px;
+            }
+        }
+        .home-button {
+            background-image: linear-gradient(to right, #8b5cf6, #3b82f6);
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 2rem;
+            align-self: center;
+            border: none;
+        }
+        .home-button:hover {
+            background-image: linear-gradient(to right, #7c3aed, #2563eb);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-50">
+    <div class="container">
+        <h1 class="heading">Robot Arm Simulation</h1>
+        <canvas id="robotCanvas"></canvas>
+        <div class="controls" id="controls">
+        </div>
+        <div id="abc" class="mt-6">
+            <p>Use the sliders to control the robot arm. Press 'Start' to begin the simulation and 'Reset' to return to the initial state.</p>
+        </div>
+    </div>
+    <button class="home-button" onclick="window.location.href='files.html'">Go to Home Page</button>
+    <script>
+        const canvas = document.getElementById('robotCanvas');
+        const ctx = canvas.getContext('2d');
+        const controlsContainer = document.getElementById('controls');
+        const startButton = document.getElementById('startButton');
+        const resetButton = document.getElementById('resetButton');
+        const abc = document.getElementById('abc');
+
+
+        let robotX = 50;
+        let robotY = 50;
+        let robotAngle = 0;
+        let robotSpeed = 0;
+        let robotRotationSpeed = 0;
+        let link1Angle = 0;
+        let link2Angle = 0;
+        let link3Angle = 0;  // Renamed from manipulatorAngle
+        let gripperAngle = 0;
+        let animationFrameId;
+        let isSimulationRunning = false;
+
+        let link1Length = 150;
+        let link2Length = 120;
+        let link3Length = 80; // Renamed from manipulatorLength
+        let linkWidth = 10;
+        let jointRadius = 15;
+        let gripperLength = 30;
+        let gripperWidth = 8;
+
+        let pathPoints = [];
+        let pathLength = 50;
+
+
+        function resizeCanvas() {
+            const containerElement = document.querySelector('.container');
+            const containerWidth = containerElement.clientWidth;
+            canvas.width = containerWidth;
+            canvas.height = containerWidth * 0.75;
+        }
+
+        resizeCanvas();
+
+
+
+        function drawRobotArm() {
+            ctx.save();
+            // Base position
+            const baseX = 100;
+            const baseY = canvas.height - 50;
+
+            // Calculate joint positions
+            const joint1X = baseX;
+            const joint1Y = baseY;
+
+            const joint2X = joint1X + link1Length * Math.cos(link1Angle * Math.PI / 180);
+            const joint2Y = joint1Y + link1Length * Math.sin(link1Angle * Math.PI / 180);
+
+            const endX = joint2X + link2Length * Math.cos((link1Angle + link2Angle) * Math.PI / 180);
+            const endY = joint2Y + link2Length * Math.sin((link1Angle + link2Angle) * Math.PI / 180);
+
+            const link3X = endX + link3Length * Math.cos((link1Angle + link2Angle + link3Angle) * Math.PI / 180); // Renamed
+            const link3Y = endY + link3Length * Math.sin((link1Angle + link2Angle + link3Angle) * Math.PI / 180); // Renamed
+
+
+            // Draw base
+            ctx.fillStyle = '#f5f5f5';
+            ctx.beginPath();
+            ctx.arc(baseX, baseY, 20, 0, Math.PI);
+            ctx.fill();
+            ctx.fillRect(baseX - 20, baseY, 40, 10);
+
+            // Draw link 1
+            ctx.strokeStyle = '#a855f7';
+            ctx.lineWidth = linkWidth;
+            ctx.beginPath();
+            ctx.moveTo(joint1X, joint1Y);
+            ctx.lineTo(joint2X, joint2Y);
+            ctx.stroke();
+
+            // Draw link 2
+            ctx.strokeStyle = '#a855f7';
+            ctx.beginPath();
+            ctx.moveTo(joint2X, joint2Y);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+
+             // Draw link 3
+            ctx.strokeStyle = '#a855f7';
+            ctx.lineWidth = linkWidth;
+            ctx.beginPath();
+            ctx.moveTo(endX, endY);
+            ctx.lineTo(link3X, link3Y);  // Renamed
+            ctx.stroke();
+
+            // Draw joints
+            ctx.fillStyle = '#f5f5f5';
+            ctx.beginPath();
+            ctx.arc(joint1X, joint1Y, jointRadius, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(joint2X, joint2Y, jointRadius, 0, 2 * Math.PI);
+            ctx.fill();
+             ctx.beginPath();
+            ctx.arc(endX, endY, jointRadius, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // Draw gripper
+            ctx.save();
+            ctx.translate(link3X, link3Y); // Renamed
+             // Calculate the angle for the gripper arms
+            const gripper1Angle = (link1Angle + link2Angle + link3Angle) * Math.PI / 180 - gripperAngle * Math.PI / 180; // Renamed
+            const gripper2Angle = (link1Angle + link2Angle + link3Angle) * Math.PI / 180 + gripperAngle * Math.PI / 180; // Renamed
+
+            // Draw the first gripper arm
+            ctx.rotate(gripper1Angle);
+            ctx.fillStyle = '#f5f5f5';
+            ctx.beginPath();
+            ctx.fillRect(0, 0, gripperLength, gripperWidth);
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(link3X, link3Y); // Renamed
+            // Draw the second gripper arm
+            ctx.rotate(gripper2Angle);
+            ctx.fillStyle = '#f5f5f5';
+            ctx.beginPath();
+            ctx.fillRect(0, 0, gripperLength, gripperWidth);
+            ctx.restore();
+
+
+            // Store the end effector position for the path
+            pathPoints.push({ x: link3X, y: link3Y }); // Renamed
+            // Keep only the last 'pathLength' number of points
+            if (pathPoints.length > pathLength) {
+                pathPoints.shift();
+            }
+
+            // Draw the path
+            ctx.strokeStyle = 'rgba(167, 139, 250, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            if (pathPoints.length > 0) {
+                ctx.moveTo(pathPoints[0].x, pathPoints[0].y);
+                for (let i = 1; i < pathPoints.length; i++) {
+                    ctx.lineTo(pathPoints[i].x, pathPoints[i].y);
+                }
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        }
+
+        function updateRobotArm() {
+            link1Angle = parseInt(document.getElementById('link1Angle').value);
+            link2Angle = parseInt(document.getElementById('link2Angle').value);
+            link3Angle = parseInt(document.getElementById('link3Angle').value); // Renamed
+            gripperAngle = parseInt(document.getElementById('gripperAngle').value);
+        }
+
+
+
+        function animate() {
+            if (!isSimulationRunning) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            updateRobotArm();
+            drawRobotArm();
+
+            animationFrameId = requestAnimationFrame(animate);
+        }
+
+        function startSimulation() {
+            if (!isSimulationRunning) {
+                isSimulationRunning = true;
+                animate();
+                abc.textContent = "Simulation started. Adjust the sliders to control the robot arm.";
+            } else {
+                abc.textContent = "Simulation is already running.";
+            }
+        }
+
+        function resetSimulation() {
+            robotX = 50;
+            robotY = 50;
+            robotAngle = 0;
+            robotSpeed = 0;
+            robotRotationSpeed = 0;
+            link1Angle = 0;
+            link2Angle = 0;
+            link3Angle = 0; // Renamed
+            gripperAngle = 0;
+            pathPoints = [];
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawRobotArm();
+
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            animationFrameId = null;
+            isSimulationRunning = false;
+            abc.textContent = "Simulation reset. Use the sliders and press Start to begin.";
+        }
+
+
+
+        function createControls() {
+            controlsContainer.innerHTML = '';
+            const controlsHTML = `
+                <div class="control-group">
+                    <label for="link1Angle" class="control-label">Link 1 Angle:</label>
+                    <input type="range" id="link1Angle" class="input-range" value="0" min="-180" max="180">
+                    <p id="link1AngleValue" class="text-white text-center mt-2 text-lg">0°</p>
+                </div>
+                <div class="control-group">
+                    <label for="link2Angle" class="control-label">Link 2 Angle:</label>
+                    <input type="range" id="link2Angle" class="input-range" value="0" min="-180" max="180">
+                    <p id="link2AngleValue" class="text-white text-center mt-2 text-lg">0°</p>
+                </div>
+                <div class="control-group">
+                    <label for="link3Angle" class="control-label">Link 3 Angle:</label>
+                    <input type="range" id="link3Angle" class="input-range" value="0" min="0" max="180">
+                    <p id="link3AngleValue" class="text-white text-center mt-2 text-lg">0°</p>
+                </div>
+                <div class="control-group">
+                    <label for="gripperAngle" class="control-label">Gripper Angle:</label>
+                    <input type="range" id="gripperAngle" class="input-range" value="30" min="0" max="90">
+                    <p id="gripperAngleValue" class="text-white text-center mt-2 text-lg">30°</p>
+                </div>
+                <div class="button-container">
+                    <button id="startButton" class="button start">Start Simulation</button>
+                    <button id="resetButton" class="button reset">Reset Simulation</button>
+                </div>
+            `;
+            controlsContainer.innerHTML = controlsHTML;
+
+            const link1AngleControl = document.getElementById('link1Angle');
+            const link2AngleControl = document.getElementById('link2Angle');
+            const link3AngleControl = document.getElementById('link3Angle'); // Renamed
+            const gripperAngleControl = document.getElementById('gripperAngle');
+            const startButton = document.getElementById('startButton');
+            const resetButton = document.getElementById('resetButton');
+
+
+            const link1AngleValueDisplay = document.getElementById('link1AngleValue');
+            const link2AngleValueDisplay = document.getElementById('link2AngleValue');
+            const link3AngleValueDisplay = document.getElementById('link3AngleValue'); // Renamed
+            const gripperAngleValueDisplay = document.getElementById('gripperAngleValue');
+
+
+            link1AngleValueDisplay.textContent = link1AngleControl.value + "°";
+            link2AngleValueDisplay.textContent = link2AngleControl.value + "°";
+            link3AngleValueDisplay.textContent = link3AngleControl.value + "°"; // Renamed
+            gripperAngleValueDisplay.textContent = gripperAngleControl.value + "°";
+
+            link1AngleControl.addEventListener('input', () => {
+                link1Angle = parseInt(link1AngleControl.value);
+                link1AngleValueDisplay.textContent = link1AngleControl.value + "°";
+                if (isSimulationRunning) {
+                    animate();
+                }
+            });
+
+            link2AngleControl.addEventListener('input', () => {
+                link2Angle = parseInt(link2AngleControl.value);
+                link2AngleValueDisplay.textContent = link2AngleControl.value + "°";
+                if (isSimulationRunning) {
+                    animate();
+                }
+            });
+
+            link3AngleControl.addEventListener('input', () => { // Renamed
+                link3Angle = parseInt(link3AngleControl.value); // Renamed
+                link3AngleValueDisplay.textContent = link3AngleControl.value + "°"; // Renamed
+                if (isSimulationRunning) {
+                    animate();
+                }
+            });
+
+            gripperAngleControl.addEventListener('input', () => {
+                gripperAngle = parseInt(gripperAngleControl.value);
+                gripperAngleValueDisplay.textContent = gripperAngleControl.value + "°";
+                if (isSimulationRunning) {
+                    animate();
+                }
+            });
+
+            startButton.addEventListener('click', startSimulation);
+            resetButton.addEventListener('click', resetSimulation);
+
+        }
+
+        createControls();
+        resetSimulation();
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            resetSimulation();
+        });
+
+    </script>
+</body>
+</html>
